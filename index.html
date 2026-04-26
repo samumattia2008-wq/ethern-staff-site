@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EHERN V1 — Staff Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<style>
+/* ======================
+   VARIABLES & RESET
+====================== */
+:root {
+  --black:      #070707;
+  --dark:       #101010;
+  --dark2:      #161616;
+  --dark3:      #1e1e1e;
+  --card-bg:    #121212;
+  --border:     #252525;
+  --border-g:   #b87a00;
+  --gold:       #f0a500;
+  --gold-l:     #ffc340;
+  --white:      #efefef;
+  --muted:      #777;
+  --glow:       0 0 14px rgba(240,165,0,0.65), 0 0 32px rgba(240,165,0,0.22);
+  --glow-sm:    0 0 8px rgba(240,165,0,0.5);
+  --glow-card:  0 0 20px rgba(240,165,0,0.07);
+  --r:          8px;
+  --tr:         0.27s cubic-bezier(0.4,0,0.2,1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+::selection { background: var(--gold); color: var(--black); }
+
+/* scanline texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px,
+    rgba(255,255,255,0.011) 2px, rgba(255,255,255,0.011) 4px);
+  pointer-events: none; z-index: 0;
+}
+
+/* ======================
+   LOGIN SCREEN
+====================== */
+#login-screen {
+  position: fixed; inset: 0;
+  background: var(--black);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  flex-direction: column;
+}
+#login-screen.hidden { display: none; }
+
+.login-box {
+  width: 100%; max-width: 400px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-g);
+  border-radius: 12px;
+  padding: 40px 36px;
+  box-shadow: var(--glow-card), 0 0 60px rgba(0,0,0,0.6);
+  animation: loginPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  margin: 16px;
+}
+@keyframes loginPop {
+  from { opacity: 0; transform: scale(0.88) translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.login-logo .ring {
+  width: 72px; height: 72px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--gold);
+  letter-spacing: 2px;
+  box-shadow: var(--glow);
+  animation: pulse-ring 3s ease-in-out infinite;
+}
+@keyframes pulse-ring {
+  0%,100% { box-shadow: var(--glow); }
+  50% { box-shadow: 0 0 28px rgba(240,165,0,0.8), 0 0 60px rgba(240,165,0,0.3); }
+}
+.login-logo h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.05rem;
+  letter-spacing: 4px;
+  line-height: 1.05;
+  color: var(--white);
+  text-shadow: 0 0 32px rgba(240,165,0,0.15);
+}
+.login-logo h1 span { color: var(--gold); text-shadow: var(--glow); }
+.login-logo p {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.login-field {
+  margin-bottom: 16px;
+}
+.login-field label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 7px;
+}
+.login-field input {
+  width: 100%;
+  background: var(--dark3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  color: var(--white);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  outline: none;
+  transition: border-color var(--tr), box-shadow var(--tr);
+}
+.login-field input:focus {
+  border-color: var(--gold);
+  box-shadow: var(--glow-sm);
+}
+.login-field input::placeholder { color: #444; }
+.remember-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: -3px 0 16px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  user-select: none;
+}
+.remember-row input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+.remember-row span { line-height: 1; }
+.login-btn {
+  width: 100%;
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  border-radius: 6px;
+  padding: 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 8px;
+  box-shadow: var(--glow-sm);
+  transition: background var(--tr), box-shadow var(--tr), transform var(--tr);
+}
+.login-btn:hover {
+  background: var(--gold-l);
+  box-shadow: var(--glow);
+  transform: translateY(-2px);
+}
+.login-btn:active { transform: none; }
+.discord-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+  padding: 13px;
+  border: 1px solid rgba(88,101,242,0.5);
+  border-radius: 6px;
+  background: rgba(88,101,242,0.16);
+  color: #dfe2ff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background var(--tr), border-color var(--tr), transform var(--tr);
+}
+.discord-login-btn:hover {
+  background: rgba(88,101,242,0.28);
+  border-color: #5865f2;
+  transform: translateY(-2px);
+}
+.login-error {
+  display: none;
+  margin-top: 14px;
+  background: rgba(220,50,50,0.1);
+  border: 1px solid rgba(220,50,50,0.35);
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: #ff6b6b;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+}
+.login-error.show { display: block; }
+.login-attempts {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+/* lockout overlay */
+#lockout {
+  display: none;
+  position: fixed; inset: 0;
+  background: var(--black);
+  z-index: 10000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+#lockout.show { display: flex; }
+.lockout-icon { font-size: 3rem; margin-bottom: 16px; }
+.lockout-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 4px;
+  color: #ff4444;
+  margin-bottom: 10px;
+}
+.lockout-msg { color: var(--muted); font-size: 0.9rem; }
+#lockout-timer { color: var(--gold); font-family: 'Share Tech Mono', monospace; margin-top: 10px; }
+
+/* ======================
+   MAIN SITE (hidden until login)
+====================== */
+#main-site { display: none; }
+#main-site.visible { display: block; }
+
+/* ======================
+   NAVBAR
+====================== */
+#navbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 990;
+  background: rgba(7,7,7,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  height: 58px;
+  display: flex; align-items: center;
+  padding: 0 20px;
+  justify-content: space-between;
+  transition: border-color var(--tr);
+}
+#navbar.scrolled { border-bottom-color: var(--border-g); }
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-shadow: var(--glow-sm);
+  white-space: nowrap;
+}
+.nav-brand img { height: 40px; width: auto; object-fit: contain; }
+.nav-right {
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-links {
+  display: flex; gap: 2px; list-style: none; flex-wrap: wrap;
+}
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 9px;
+  border-radius: 4px;
+  transition: color var(--tr), background var(--tr);
+}
+.nav-links a:hover { color: var(--gold); background: rgba(240,165,0,0.08); }
+.nav-logout {
+  background: rgba(220,50,50,0.12);
+  border: 1px solid rgba(220,50,50,0.3);
+  color: #ff6b6b !important;
+  border-radius: 4px;
+  padding: 5px 12px !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  cursor: pointer;
+  transition: background var(--tr), border-color var(--tr) !important;
+}
+.nav-logout:hover {
+  background: rgba(220,50,50,0.22) !important;
+  color: #fff !important;
+}
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 4px;
+}
+.hamburger {
+  display: none; flex-direction: column; gap: 5px;
+  cursor: pointer; padding: 4px;
+}
+.hamburger span { display: block; width: 22px; height: 2px; background: var(--gold); border-radius: 2px; }
+.mobile-menu {
+  display: none; position: fixed;
+  top: 58px; left: 0; right: 0;
+  background: rgba(8,8,8,0.98);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-g);
+  padding: 14px 18px; z-index: 989;
+  flex-direction: column; gap: 3px;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  color: var(--muted); text-decoration: none;
+  font-size: 0.82rem; font-weight: 600;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 9px 12px; border-radius: 4px;
+  border-left: 2px solid transparent;
+  transition: var(--tr);
+}
+.mobile-menu a:hover { color: var(--gold); border-left-color: var(--gold); background: rgba(240,165,0,0.06); }
+
+/* staff badge in navbar */
+.nav-staff-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  background: rgba(240,165,0,0.12);
+  border: 1px solid rgba(240,165,0,0.3);
+  color: var(--gold);
+  padding: 3px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ======================
+   WRAPPER & SECTIONS
+====================== */
+.wrapper { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 20px; }
+section { padding: 76px 0; border-top: 1px solid var(--border); }
+section:first-of-type { border-top: none; }
+
+/* ======================
+   HERO
+====================== */
+#home {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; text-align: center;
+  padding-top: 58px; position: relative; overflow: hidden;
+}
+#home::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(240,165,0,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.logo-ring {
+  width: 220px;
+  height: 220px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 26px;
+  box-shadow: var(--glow);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--gold);
+  letter-spacing: 2px;
+  animation: pulse-ring 3s ease-in-out infinite;
+}
+.logo-ring img {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+}
+.hero-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 4px; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 14px; opacity: 0.8;
+}
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.2rem, 6.5vw, 4rem);
+  letter-spacing: 4px; line-height: 1.06;
+  color: var(--white); text-shadow: 0 0 40px rgba(240,165,0,0.15);
+  margin-bottom: 18px;
+}
+.hero-title span { color: var(--gold); text-shadow: var(--glow); }
+.hero-sub {
+  font-size: 1rem; color: var(--muted); max-width: 520px;
+  margin: 0 auto 36px; font-weight: 500; letter-spacing: 0.5px;
+}
+.divider { width: 55px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 0 auto 36px; }
+.staff-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(240,165,0,0.08);
+  border: 1px solid rgba(240,165,0,0.25);
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold);
+}
+.staff-pill::before { content: '●'; color: #4caf50; font-size: 0.55rem; }
+.scroll-hint {
+  position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: var(--muted); font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+  animation: sh 2s infinite;
+}
+.scroll-hint::after { content: ''; display: block; width: 1px; height: 36px; background: linear-gradient(to bottom, var(--gold), transparent); }
+@keyframes sh { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+/* ======================
+   SECTION HEADERS
+====================== */
+.sec-hdr { margin-bottom: 36px; }
+.sec-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.67rem; letter-spacing: 4px; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 9px; display: block;
+}
+.sec-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+  letter-spacing: 3px; color: var(--white);
+}
+.sec-title span { color: var(--gold); }
+.sec-desc { color: var(--muted); font-size: 0.92rem; margin-top: 9px; max-width: 600px; }
+
+/* ======================
+   CARDS
+====================== */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 24px 26px; margin-bottom: 14px;
+  position: relative; overflow: hidden;
+  transition: border-color var(--tr), box-shadow var(--tr), transform var(--tr);
+}
+.card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; width: 3px; height: 100%;
+  background: var(--gold);
+  transform: scaleY(0); transform-origin: bottom;
+  transition: transform var(--tr);
+}
+.card:hover { border-color: var(--border-g); box-shadow: var(--glow-card); transform: translateX(3px); }
+.card:hover::before { transform: scaleY(1); }
+
+.blk-hdr {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 20px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.blk-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 2rem;
+  color: var(--gold); line-height: 1; text-shadow: var(--glow-sm); min-width: 40px;
+}
+.blk-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; letter-spacing: 2px; color: var(--white); }
+.blk-sub { font-size: 0.76rem; color: var(--muted); letter-spacing: 1px; }
+
+/* Q&A */
+.qa { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.qa:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.qa-lbl {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 5px;
+  display: flex; align-items: center; gap: 7px;
+}
+.qa-lbl::before {
+  content: '?';
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px;
+  background: rgba(240,165,0,0.14); border: 1px solid rgba(240,165,0,0.3);
+  border-radius: 50%; font-size: 0.65rem; color: var(--gold); flex-shrink: 0;
+}
+.qa-q { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 9px; }
+.qa-a {
+  background: rgba(240,165,0,0.05);
+  border: 1px solid rgba(240,165,0,0.14);
+  border-radius: 6px; padding: 11px 15px;
+  font-size: 0.9rem; color: #ccc; line-height: 1.6;
+}
+.qa-a strong { color: var(--gold); }
+.trap {
+  display: inline-block;
+  background: rgba(255,60,60,0.1); border: 1px solid rgba(255,60,60,0.3);
+  color: #ff6b6b; font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 3px; margin-left: 5px; vertical-align: middle;
+}
+
+/* Case steps */
+.case-card {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 18px 22px; margin-bottom: 12px;
+  transition: border-color var(--tr), transform var(--tr);
+}
+.case-card:hover { border-color: var(--border-g); transform: translateX(3px); }
+.case-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 2px; color: var(--gold); display: block; margin-bottom: 7px; }
+.case-title { font-size: 0.98rem; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+.case-steps { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 0.8rem; font-weight: 600; }
+.c-step { background: rgba(240,165,0,0.1); border: 1px solid rgba(240,165,0,0.2); border-radius: 4px; padding: 3px 10px; color: var(--gold); }
+.c-arr { color: var(--muted); font-size: 0.72rem; }
+
+/* Obiettivo grid */
+.obj-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 11px; margin-top: 18px;
+}
+.obj-item {
+  background: var(--dark3); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 15px; text-align: center;
+  font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; color: #bbb;
+  transition: border-color var(--tr), color var(--tr), background var(--tr);
+}
+.obj-item:hover { border-color: var(--gold); color: var(--gold); background: rgba(240,165,0,0.06); }
+.obj-icon { font-size: 1.4rem; margin-bottom: 7px; display: block; }
+
+/* Whitelist table */
+.wl-tbl { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 0.88rem; }
+.wl-tbl th {
+  background: rgba(240,165,0,0.09); border: 1px solid var(--border-g);
+  padding: 9px 13px; text-align: left;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.68rem;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--gold);
+}
+.wl-tbl td { border: 1px solid var(--border); padding: 11px 13px; vertical-align: top; color: #ccc; line-height: 1.55; }
+.wl-tbl tr:hover td { background: rgba(240,165,0,0.03); }
+.wl-term { font-weight: 700; color: var(--white); white-space: nowrap; }
+
+/* Req list */
+.req-list { list-style: none; margin-top: 18px; display: flex; flex-direction: column; gap: 9px; }
+.req-list li {
+  display: flex; align-items: flex-start; gap: 11px;
+  background: var(--dark3); border: 1px solid var(--border); border-radius: 6px;
+  padding: 11px 15px; font-size: 0.9rem; font-weight: 500; color: #bbb;
+  transition: border-color var(--tr);
+}
+.req-list li:hover { border-color: var(--border-g); }
+.req-list li::before { content: '✓'; color: var(--gold); font-weight: 700; font-size: 0.82rem; margin-top: 2px; flex-shrink: 0; }
+
+/* Form candidato */
+.form-card {
+  background: var(--card-bg); border: 1px solid var(--border-g);
+  border-radius: var(--r); padding: 26px; box-shadow: var(--glow-card);
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.f-field label {
+  display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 6px;
+}
+.f-field input {
+  width: 100%; background: var(--dark3); border: 1px solid var(--border);
+  border-radius: 5px; padding: 10px 13px;
+  color: var(--white); font-family: 'Rajdhani', sans-serif;
+  font-size: 0.95rem; font-weight: 500; outline: none;
+  transition: border-color var(--tr), box-shadow var(--tr);
+}
+.f-field input:focus { border-color: var(--gold); box-shadow: var(--glow-sm); }
+.f-field input::placeholder { color: #444; }
+
+/* back to top */
+#btt {
+  position: fixed; bottom: 26px; right: 26px;
+  width: 42px; height: 42px; background: var(--gold); color: var(--black);
+  border: none; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; box-shadow: var(--glow-sm);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--tr), transform var(--tr), box-shadow var(--tr); z-index: 900;
+}
+#btt.visible { opacity: 1; pointer-events: all; }
+#btt:hover { box-shadow: var(--glow); transform: translateY(-3px); }
+
+/* footer */
+footer {
+  background: var(--dark); border-top: 1px solid var(--border);
+  padding: 28px 20px; text-align: center;
+  color: var(--muted); font-size: 0.8rem; letter-spacing: 1px;
+}
+.foot-brand {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem;
+  letter-spacing: 4px; color: var(--gold); display: block; margin-bottom: 7px;
+  text-shadow: var(--glow-sm);
+}
+
+/* fade-in */
+.fi { opacity: 0; transform: translateY(22px); transition: opacity 0.52s ease, transform 0.52s ease; }
+.fi.v { opacity: 1; transform: none; }
+
+/* ======================
+   RESPONSIVE
+====================== */
+@media (max-width: 680px) {
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .form-grid { grid-template-columns: 1fr; }
+  .obj-grid { grid-template-columns: 1fr 1fr; }
+  .wl-tbl { font-size: 0.78rem; }
+  .wl-tbl th, .wl-tbl td { padding: 7px 9px; }
+  .nav-staff-badge { display: none; }
+}
+@media (max-width: 400px) {
+  .obj-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 2rem; }
+  .login-box { padding: 28px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- =====================
+     LOGIN SCREEN
+===================== -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="ring">
+  <img src="logo.png" style="width:60px; height:60px; object-fit:contain;">
+</div>
+      <h1><span>ETHERN RP</span></h1>
+      <p>Staff Portal - Accesso Riservato</p>
+    </div>
+
+    <div class="login-field">
+      <label for="l-user">Username</label>
+      <input type="text" id="l-user" placeholder="Inserisci username" autocomplete="username" list="saved-users" />
+      <datalist id="saved-users"></datalist>
+    </div>
+    <div class="login-field">
+      <label for="l-pass">Password</label>
+      <input type="password" id="l-pass" placeholder="Inserisci password" autocomplete="current-password" />
+    </div>
+    <label class="remember-row" for="remember-pc">
+      <input type="checkbox" id="remember-pc" />
+      <span>Ricorda questo PC</span>
+    </label>
+
+    <button class="login-btn" onclick="doLogin()">ACCEDI</button>
+    <a class="discord-login-btn" href="/api/discord-login">ACCEDI CON DISCORD</a>
+    <div class="login-error" id="login-err">Credenziali errate. Riprova.</div>
+    <div class="login-attempts" id="login-att"></div>
+  </div>
+</div>
+
+<!-- LOCKOUT -->
+<div id="lockout">
+  <div class="lockout-icon">🔒</div>
+  <div class="lockout-title">ACCESSO BLOCCATO</div>
+  <div class="lockout-msg">Troppi tentativi falliti. Riprova tra:</div>
+  <div id="lockout-timer">05:00</div>
+</div>
+
+<!-- =====================
+     MAIN SITE
+===================== -->
+<div id="main-site">
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <div class="nav-brand">
+      <img src="logo.png" alt="ETHERN RP">
+      <span class="brand-text">ETHERN RP</span>
+    </div>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#blocchi">Colloqui</a></li>
+        <li><a href="#whitelist">Whitelist</a></li>
+      </ul>
+      <div class="nav-user">
+        <span class="nav-staff-badge" id="nav-username-badge">STAFF</span>
+        <span class="nav-logout" onclick="doLogout()">LOG OUT</span>
+      </div>
+    </div>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#home"       onclick="closeMob()">Home</a>
+    <a href="#blocchi"    onclick="closeMob()">Colloqui</a>
+    <a href="#whitelist"  onclick="closeMob()">Whitelist</a>
+    <a href="#" onclick="doLogout()">Log out</a>
+  </div>
+
+  <!-- HERO -->
+  <section id="home">
+    <div class="wrapper">
+      <div class="logo-ring">
+  <img src="logo.png" alt="ETHERN RP">
+</div>
+      <p class="hero-tag"> Documento Riservato Staff — ETHERN Roleplay</p>
+      <h1 class="hero-title">SCALLETTA <span>COLLOQUI</span><br>STAFF  </h1>
+      <p class="hero-sub">Guida ufficiale per la selezione staff  di ETHERN RP.<br>Seguire la scalletta nell'ordine indicato durante il colloquio.</p>
+      <div class="divider"></div>
+      <div class="staff-pill">Portale Staff Attivo</div>
+    </div>
+    <div class="scroll-hint">scroll</div>
+  </section>
+
+  <!-- BLOCCHI -->
+  <section id="blocchi">
+    <div class="wrapper">
+      <div class="sec-hdr fi">
+        <span class="sec-label">// 03 — Scalletta</span>
+        <h2 class="sec-title">BLOCCHI <span>DOMANDE</span></h2>
+        <p class="sec-desc">Procedere nell'ordine indicato. I trabocchetti sono segnalati con il badge rosso.</p>
+      </div>
+
+      <!-- B1 -->
+      <div class="card fi">
+        <div class="blk-hdr">
+          <div class="blk-num">01</div>
+          <div><div class="blk-title">CONOSCENZA BASE</div><div class="blk-sub">Terminologia fondamentale del roleplay</div></div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Qual è la differenza tra RDM e VDM?</div>
+          <div class="qa-a"><strong>RDM:</strong> uccidere un player senza motivazione RP valida.<br><strong>VDM:</strong> usare un veicolo come arma senza contesto RP giustificato.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Differenza tra PowerGame e PowerPlay?</div>
+          <div class="qa-a"><strong>PowerGame:</strong> azioni fisicamente irrealistiche per il proprio PG.<br><strong>PowerPlay:</strong> forzare azioni su altri player senza possibilità di reazione.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Cos'è il Metagame?</div>
+          <div class="qa-a">Uso di informazioni esterne al gioco (Discord, stream, amici) per ottenere vantaggi in-game.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Trabocchetto <span class="trap">TRAP</span></div>
+          <div class="qa-q">Uso info Discord per rintracciare un player. Violazione?</div>
+          <div class="qa-a"><strong>Sì — Metagame grave.</strong> Qualsiasi informazione esterna al RP non può essere usata in-game. Sanzione variabile da ban temporaneo a permanente.</div>
+        </div>
+      </div>
+
+      <!-- B2 -->
+      <div class="card fi">
+        <div class="blk-hdr">
+          <div class="blk-num">02</div>
+          <div><div class="blk-title">NO FEAR & ROLEPLAY</div><div class="blk-sub">Comprensione del rischio e del roleplay</div></div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Cos'è il NoFear?</div>
+          <div class="qa-a">Non temere la morte o il pericolo per il proprio PG, agendo in modo spericolato e irrealistico.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Un player scappa da un'arma puntata. È sempre NoFear?</div>
+          <div class="qa-a"><strong>No.</strong> Dipende dal contesto e dalle possibilità reali del PG. Se esiste una via di fuga plausibile, la fuga può essere RP valido. Va valutata la situazione specifica.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Trabocchetto <span class="trap">TRAP</span></div>
+          <div class="qa-q">Un player porta la polizia nel ghetto per salvarsi. È corretto RP?</div>
+          <div class="qa-a"><strong>No — Fail RP.</strong> Usare la polizia come scudo senza motivazione realistica del PG rompe l'immersione narrativa.</div>
+        </div>
+      </div>
+
+      <!-- B3 -->
+      <div class="card fi">
+        <div class="blk-hdr">
+          <div class="blk-num">03</div>
+          <div><div class="blk-title">ASSISTENZE</div><div class="blk-sub">Gestione segnalazioni e ticket</div></div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Quando si apre un'assistenza?</div>
+          <div class="qa-a">Quando si verifica o si assiste a una possibile violazione del regolamento che richiede intervento staff.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">La clip è obbligatoria?</div>
+          <div class="qa-a"><strong>Sì, obbligatoria</strong> salvo casi di violazioni evidenti e acclarate. Necessaria per una valutazione oggettiva.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Uno staff coinvolto può valutare la situazione?</div>
+          <div class="qa-a"><strong>No.</strong> Serve uno staff neutrale non coinvolto per garantire imparzialità.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Trabocchetto <span class="trap">TRAP</span></div>
+          <div class="qa-q">Viene presentata la clip di un amico non presente nella situazione. È valida?</div>
+          <div class="qa-a"><strong>No, non valida.</strong> Le prove devono provenire da chi era direttamente coinvolto o presente nella situazione.</div>
+        </div>
+      </div>
+
+      <!-- B4 -->
+      <div class="card fi">
+        <div class="blk-hdr">
+          <div class="blk-num">04</div>
+          <div><div class="blk-title">AZIONI RP</div><div class="blk-sub">Rapimenti, pillola memoria e meccaniche</div></div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Durata massima di un rapimento?</div>
+          <div class="qa-a"><strong>30–60 minuti.</strong></div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">La pillola memoria è obbligatoria dopo un rapimento?</div>
+          <div class="qa-a"><strong>Sì, obbligatoria.</strong> Impedisce al PG di ricordare eventi che non dovrebbe ricordare.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Cosa succede se la pillola non viene somministrata?</div>
+          <div class="qa-a">Il PG ricorda gli eventi trascorsi <strong>30 minuti</strong> dopo il rilascio. Dopo quel tempo può agire sulle informazioni acquisite.</div>
+        </div>
+      </div>
+
+      <!-- B5 -->
+      <div class="card fi">
+        <div class="blk-hdr">
+          <div class="blk-num">05</div>
+          <div><div class="blk-title">FREEROAM</div><div class="blk-sub">Regole degli scontri liberi</div></div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Limite massimo player in un Freeroam?</div>
+          <div class="qa-a"><strong>5 vs 5</strong> massimo.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Entra una terza fazione in uno scontro in corso. Cosa succede?</div>
+          <div class="qa-a"><strong>L'azione viene annullata.</strong> La terza fazione non autorizzata invalida lo scontro.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Si può lootare la polizia?</div>
+          <div class="qa-a"><strong>No, vietato.</strong></div>
+        </div>
+      </div>
+
+      <!-- B6 -->
+      <div class="card fi">
+        <div class="blk-hdr">
+          <div class="blk-num">06</div>
+          <div><div class="blk-title">FAZIONI</div><div class="blk-sub">Polizia, gang e interazioni</div></div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">La polizia può entrare nei ghetti?</div>
+          <div class="qa-a"><strong>Sì, ma solo con motivo RP valido.</strong> L'ingresso deve essere giustificato da una situazione roleplay concreta.</div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Le gang possono collaborare tra loro?</div>
+          <div class="qa-a"><strong>Sì,</strong> ma solo se coerente con il roleplay e le dinamiche narrative delle fazioni coinvolte.</div>
+        </div>
+      </div>
+
+      <!-- B7 -->
+      <div class="card fi">
+        <div class="blk-hdr">
+          <div class="blk-num">07</div>
+          <div><div class="blk-title">PERMA KILL</div><div class="blk-sub">Procedura e requisiti per il PK</div></div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Quante prove servono per un Perma Kill?</div>
+          <div class="qa-a">Almeno <strong>10 motivazioni valide e documentate.</strong></div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Tempo massimo per la valutazione?</div>
+          <div class="qa-a">Entro <strong>48 ore.</strong></div>
+        </div>
+        <div class="qa">
+          <div class="qa-lbl">Domanda</div>
+          <div class="qa-q">Se una prova cade o viene invalidata?</div>
+          <div class="qa-a"><strong>Perma Kill annullato.</strong> Tutte le prove devono essere valide — il venir meno anche di una sola rende la procedura nulla.</div>
+        </div>
+      </div>
+
+      <!-- B8 — CASI -->
+      <div class="card fi">
+        <div class="blk-hdr">
+          <div class="blk-num">08</div>
+          <div><div class="blk-title">CASI STAFF</div><div class="blk-sub">Scenari pratici e gestione situazioni</div></div>
+        </div>
+        <div class="case-card">
+          <span class="case-tag">CASO PRATICO 01</span>
+          <div class="case-title">Player tossico e aggressivo durante un'assistenza</div>
+          <div class="case-steps">
+            <span class="c-step">Richiamo verbale</span><span class="c-arr">→</span>
+            <span class="c-step">Mute temporaneo</span><span class="c-arr">→</span>
+            <span class="c-step">Sanzione disciplinare</span>
+          </div>
+        </div>
+        <div class="case-card">
+          <span class="case-tag">CASO PRATICO 02</span>
+          <div class="case-title">Player con ricchezza sproporzionata al lavoro lecito svolto</div>
+          <div class="case-steps">
+            <span class="c-step">Controllo log attività</span><span class="c-arr">→</span>
+            <span class="c-step">Verifica RP svolto</span><span class="c-arr">→</span>
+            <span class="c-step">Valutazione provvedimento</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- WHITELIST -->
+  <section id="whitelist">
+    <div class="wrapper">
+      <div class="sec-hdr fi">
+        <span class="sec-label">// 04 — Ingresso Server</span>
+        <h2 class="sec-title">DOMANDE <span>WHITELIST</span></h2>
+        <p class="sec-desc">Requisiti e domande per l'accesso al server ETHERN V1.</p>
+      </div>
+      <div class="card fi">
+        <div class="blk-hdr">
+          <div class="blk-num" style="font-size:1.2rem">REQ</div>
+          <div><div class="blk-title">REQUISITI ACCESSO</div><div class="blk-sub">Il candidato deve soddisfare tutti i requisiti</div></div>
+        </div>
+        <ul class="req-list">
+          <li>Conoscenza base del regolamento ETHERN V1</li>
+          <li>Comportamento rispettoso e maturo durante il colloquio</li>
+          <li>Comprensione delle meccaniche di roleplay fondamentali</li>
+          <li>Nessun ban attivo su altri server FiveM per comportamento tossico</li>
+          <li>Disponibilità a essere valutato con imparzialità</li>
+          <li>Accettazione del codice di condotta staff e community</li>
+        </ul>
+      </div>
+      <div class="card fi">
+        <div class="blk-hdr">
+          <div class="blk-num" style="font-size:1.2rem">WL</div>
+          <div><div class="blk-title">DOMANDE & RISPOSTE</div><div class="blk-sub">Definizioni richieste in fase whitelist</div></div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="wl-tbl">
+            <thead><tr><th>Termine</th><th>Risposta attesa</th></tr></thead>
+            <tbody>
+              <tr><td><span class="wl-term">Metagame</span></td><td>Uso di informazioni esterne al gioco (Discord, stream, amici) per ottenere vantaggi in-game.</td></tr>
+              <tr><td><span class="wl-term">Powergame</span></td><td>Compiere azioni fisicamente irrealistiche che il proprio personaggio non potrebbe fare nella realtà.</td></tr>
+              <tr><td><span class="wl-term">Fail RP</span></td><td>Comportamento che rompe la coerenza narrativa del roleplay senza giustificazione valida.</td></tr>
+              <tr><td><span class="wl-term">RDM</span></td><td>Uccidere un player senza alcuna motivazione roleplay valida (Random Death Match).</td></tr>
+              <tr><td><span class="wl-term">VDM</span></td><td>Usare un veicolo come arma contro i player senza un contesto RP giustificato (Vehicle Death Match).</td></tr>
+              <tr><td><span class="wl-term">NoFear</span></td><td>Non temere la morte o il pericolo per il proprio personaggio, agendo in modo spericolato e irrealistico.</td></tr>
+              <tr><td><span class="wl-term">Combat Log</span></td><td>Disconnettersi volontariamente durante o subito dopo un combattimento per evitare le conseguenze.</td></tr>
+              <tr><td><span class="wl-term">Revenge Kill</span></td><td>Tornare sul luogo della propria morte per vendicarsi, violando la NLR (New Life Rule).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /main-site -->
+
+<button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Torna su">↑</button>
+
+<!-- =====================
+     JAVASCRIPT
+===================== -->
+<script>
+/* ==========================
+   CREDENZIALI STAFF
+   Per aggiungere utenti: aggiungi oggetti all'array USERS
+   Formato: { user: 'username', pass: 'password' }
+========================== */
+const USERS = [
+  { user: 'mali', pass: 'Asv040815!' },
+  { user: 'kri', pass: 'Ethern2026!' },
+  { user: 'surry', pass: 'Ethernpalle2!' },
+  // Aggiungi altri account staff qui sotto:
+  // { user: 'altrostaff', pass: 'altrepassword' },
+];
+
+/* ==========================
+   LOGIN LOGIC
+========================== */
+let attempts = 0;
+const MAX_ATTEMPTS = 10;
+const LOCKOUT_SECONDS = 600; // 10 minuti
+let lockoutEnd = null;
+
+// Controlla se c'è un lockout attivo salvato
+(function checkSavedLockout() {
+  const saved = localStorage.getItem('ethern_lockout');
+  if (saved) {
+    const end = parseInt(saved, 10);
+    if (Date.now() < end) {
+      lockoutEnd = end;
+      showLockout();
+    } else {
+      localStorage.removeItem('ethern_lockout');
+    }
+  }
+  // Controlla sessione attiva o accesso ricordato
+  if (sessionStorage.getItem('ethern_auth') === '1') {
+    const u = sessionStorage.getItem('ethern_user') || 'STAFF';
+    grantAccess(u);
+  } else if (localStorage.getItem('ethern_remember_auth') === '1') {
+    const u = localStorage.getItem('ethern_remember_user') || 'STAFF';
+    sessionStorage.setItem('ethern_auth', '1');
+    sessionStorage.setItem('ethern_user', u);
+    grantAccess(u);
+  }
+  initSavedUsers();
+})();
+
+function doLogin() {
+  // Controlla lockout
+  if (lockoutEnd && Date.now() < lockoutEnd) { showLockout(); return; }
+
+  const u = document.getElementById('l-user').value.trim();
+  const p = document.getElementById('l-pass').value;
+  const remember = document.getElementById('remember-pc').checked;
+  const err = document.getElementById('login-err');
+  const attEl = document.getElementById('login-att');
+
+  const match = USERS.find(x => x.user === u && x.pass === p);
+  if (match) {
+    attempts = 0;
+    err.classList.remove('show');
+    sessionStorage.setItem('ethern_auth', '1');
+    sessionStorage.setItem('ethern_user', u);
+    saveUsedUser(u);
+    if (remember) {
+      localStorage.setItem('ethern_remember_auth', '1');
+      localStorage.setItem('ethern_remember_user', u);
+    } else {
+      localStorage.removeItem('ethern_remember_auth');
+      localStorage.removeItem('ethern_remember_user');
+    }
+    grantAccess(u);
+  } else {
+    attempts++;
+    err.classList.add('show');
+    if (attempts >= MAX_ATTEMPTS) {
+      lockoutEnd = Date.now() + LOCKOUT_SECONDS * 1000;
+      localStorage.setItem('ethern_lockout', lockoutEnd.toString());
+      showLockout();
+    } else {
+      const left = MAX_ATTEMPTS - attempts;
+      attEl.textContent = left + ' tentativ' + (left === 1 ? 'o rimasto' : 'i rimasti');
+    }
+  }
+}
+
+function grantAccess(username) {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('main-site').classList.add('visible');
+  document.getElementById('nav-username-badge').textContent = username.toUpperCase();
+  loadLocalData();
+  initObserver();
+  initScroll();
+}
+
+function doLogout() {
+  sessionStorage.removeItem('ethern_auth');
+  sessionStorage.removeItem('ethern_user');
+  localStorage.removeItem('ethern_remember_auth');
+  localStorage.removeItem('ethern_remember_user');
+  document.getElementById('main-site').classList.remove('visible');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('l-user').value = localStorage.getItem('ethern_last_user') || '';
+  document.getElementById('l-pass').value = '';
+  document.getElementById('remember-pc').checked = false;
+  document.getElementById('login-err').classList.remove('show');
+  document.getElementById('login-att').textContent = '';
+  attempts = 0;
+}
+
+function initSavedUsers() {
+  refreshSavedUserList();
+  document.getElementById('l-user').value = localStorage.getItem('ethern_last_user') || '';
+}
+
+function saveUsedUser(username) {
+  const normalized = username.trim();
+  if (!normalized) return;
+  const users = getSavedUsers().filter(u => u.toLowerCase() !== normalized.toLowerCase());
+  users.unshift(normalized);
+  localStorage.setItem('ethern_saved_users', JSON.stringify(users.slice(0, 8)));
+  localStorage.setItem('ethern_last_user', normalized);
+  refreshSavedUserList();
+}
+
+function getSavedUsers() {
+  try {
+    const users = JSON.parse(localStorage.getItem('ethern_saved_users') || '[]');
+    return Array.isArray(users) ? users.filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
+function refreshSavedUserList() {
+  const list = document.getElementById('saved-users');
+  if (!list) return;
+  list.innerHTML = '';
+  getSavedUsers().forEach(user => {
+    const option = document.createElement('option');
+    option.value = user;
+    list.appendChild(option);
+  });
+}
+
+// Enter key support
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !document.getElementById('login-screen').classList.contains('hidden')) {
+    doLogin();
+  }
+});
+
+/* ==========================
+   LOCKOUT TIMER
+========================== */
+function showLockout() {
+  document.getElementById('lockout').classList.add('show');
+  updateTimer();
+  const iv = setInterval(() => {
+    if (!lockoutEnd || Date.now() >= lockoutEnd) {
+      clearInterval(iv);
+      document.getElementById('lockout').classList.remove('show');
+      localStorage.removeItem('ethern_lockout');
+      lockoutEnd = null;
+      attempts = 0;
+      document.getElementById('login-att').textContent = '';
+    } else {
+      updateTimer();
+    }
+  }, 1000);
+}
+function updateTimer() {
+  if (!lockoutEnd) return;
+  const rem = Math.max(0, lockoutEnd - Date.now());
+  const m = String(Math.floor(rem / 60000)).padStart(2, '0');
+  const s = String(Math.floor((rem % 60000) / 1000)).padStart(2, '0');
+  document.getElementById('lockout-timer').textContent = m + ':' + s;
+}
+
+/* ==========================
+   NAVBAR
+========================== */
+function initScroll() {
+  const nb = document.getElementById('navbar');
+  const btt = document.getElementById('btt');
+  window.addEventListener('scroll', () => {
+    nb.classList.toggle('scrolled', window.scrollY > 40);
+    btt.classList.toggle('visible', window.scrollY > 400);
+  });
+}
+
+/* ==========================
+   HAMBURGER
+========================== */
+document.getElementById('hamburger').addEventListener('click', () => {
+  document.getElementById('mobileMenu').classList.toggle('open');
+});
+function closeMob() { document.getElementById('mobileMenu').classList.remove('open'); }
+
+/* ==========================
+   FADE-IN OBSERVER
+========================== */
+function initObserver() {
+  const els = document.querySelectorAll('.fi');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('v'); obs.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  els.forEach(el => obs.observe(el));
+}
+
+/* ==========================
+   LOCAL DATA
+========================== */
+function loadLocalData() {
+  ['fn','did','dc','valut'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const saved = localStorage.getItem('ethern_' + id);
+    if (saved) el.value = saved;
+    el.addEventListener('input', () => localStorage.setItem('ethern_' + id, el.value));
+  });
+}
+</script>
+</body>
+</html>
